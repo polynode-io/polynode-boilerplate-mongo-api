@@ -1,0 +1,19 @@
+{
+  "name": "polynode-boilerplate-mongo-api",
+  "version": "0.1.0",
+  "description": "Polynode boilerplate for a REST API Server using MongoDB as datasource.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polynode-io/polynode-boilerplate-mongo-api.git"
+  },
+  "author": "Jorge Duarte <info@malagadev.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/polynode-io/polynode-boilerplate-mongo-api/issues"
+  },
+  "homepage": "https://github.com/polynode-io/polynode-boilerplate-mongo-api#readme"
+}
