@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/polynode-io/polynode-boilerplate-mongo-api/issues"
   },
-  "homepage": "https://github.com/polynode-io/polynode-boilerplate-mongo-api#readme"
+  "homepage": "https://github.com/polynode-io/polynode-boilerplate-mongo-api#readme",
+  "dependencies": {
+    "polynode-service-mongodb": "^0.1.0"
+  }
 }
