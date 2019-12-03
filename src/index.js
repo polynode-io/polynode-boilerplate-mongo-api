@@ -42,7 +42,12 @@ module.exports = {
     composer.container.resolve('app');
   },
   injector: (composer, forwardOpts) => {
-    const { webServerEnhanceContext, dbConfig, ...restOfForwardOpts } = forwardOpts;
+    const {
+      webServerEnhanceContext,
+      dbConfig,
+      apiServiceConfig,
+      ...restOfForwardOpts
+    } = forwardOpts;
     return composer
       .integrate(RestAPIApplication, {
         enhanceRequestContext: function(getServerHandler) {
@@ -50,6 +55,7 @@ module.exports = {
           this.getModel = modelName => getModel(getServerHandler().getDepsContainer(), modelName);
           this.getModels = modelName => getModels(modelName, this.getModel);
         },
+        apiServiceConfig,
         ...restOfForwardOpts,
       })
       .registerDependency({
