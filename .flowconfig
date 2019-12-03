@@ -1,0 +1,15 @@
+[include]
+./src/**/types
+
+[libs]
+./src/
+
+[options]
+emoji=true
+
+[ignore]
+./build/.*
+
+[lints]
+
+[strict]
