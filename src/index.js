@@ -36,11 +36,6 @@ const getModels = (modelList, getSingleModel) =>
   modelList.reduce((res, mName) => ({ ...res, [mName]: getSingleModel(mName) }), {});
 
 module.exports = {
-  onStart: composer => {
-    const log = composer.container.resolve('log');
-    log.trace('[boilerplate-mongo-api] Start handler.');
-    composer.container.resolve('app');
-  },
   injector: (composer, forwardOpts) => {
     const {
       webServerEnhanceContext,
@@ -57,6 +52,13 @@ module.exports = {
         },
         apiServiceConfig,
         ...restOfForwardOpts,
+      })
+      .addStartHandler({
+        app: ({ dependency }) => {
+          // const log = composer.container.resolve('log');
+          console.log('[boilerplate-mongo-api] Start handler.');
+          composer.container.resolve('app');
+        },
       })
       .registerDependency({
         db: inject =>
