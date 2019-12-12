@@ -1,6 +1,6 @@
 {
   "name": "polynode-boilerplate-mongo-api",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Polynode boilerplate for a REST API Server using MongoDB as datasource.",
   "main": "build/index.js",
   "scripts": {
