@@ -30,17 +30,13 @@ const DatabaseService = require('polynode-service-mongodb');
 
 const RestAPIApplication = require('polynode-boilerplate-api-rest');
 
-const getModel = (depsContainer, modelName) => depsContainer[modelName + 'Model'].model;
+const getModel = (depsContainer, modelName, getFull = false) =>
+  getFull === true ? depsContainer[modelName + 'Model'] : depsContainer[modelName + 'Model'].model;
 
 const getModels = (modelList, getSingleModel) =>
   modelList.reduce((res, mName) => ({ ...res, [mName]: getSingleModel(mName) }), {});
 
 module.exports = {
-  onStart: composer => {
-    const log = composer.container.resolve('log');
-    log.trace('[boilerplate-mongo-api] Start handler.');
-    composer.container.resolve('app');
-  },
   injector: (composer, forwardOpts) => {
     const {
       webServerEnhanceContext,
@@ -52,11 +48,20 @@ module.exports = {
       .integrate(RestAPIApplication, {
         enhanceRequestContext: function(getServerHandler) {
           webServerEnhanceContext.call(this);
-          this.getModel = modelName => getModel(getServerHandler().getDepsContainer(), modelName);
-          this.getModels = modelName => getModels(modelName, this.getModel);
+          this.getModel = (modelName, getFull = false) =>
+            getModel(getServerHandler().getDepsContainer(), modelName, getFull);
+          this.getModels = (modelName, getFull = false) =>
+            getModels(modelName, name => this.getModel(name, getFull));
         },
         apiServiceConfig,
         ...restOfForwardOpts,
+      })
+      .addStartHandler({
+        app: ({ dependency }) => {
+          // const log = composer.container.resolve('log');
+          console.log('[boilerplate-mongo-api] Start handler.');
+          composer.container.resolve('app');
+        },
       })
       .registerDependency({
         db: inject =>
