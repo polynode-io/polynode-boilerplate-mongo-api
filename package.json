@@ -19,8 +19,9 @@
   },
   "homepage": "https://github.com/polynode-io/polynode-boilerplate-mongo-api#readme",
   "dependencies": {
-    "polynode-boilerplate-api-rest": "^0.1.7",
-    "polynode-service-mongodb": "^0.1.3"
+    "polynode-boilerplate-api-rest": "file:../polynode-boilerplate-api-rest",
+    "polynode-service-mongodb": "file:../polynode-service-mongodb",
+    "polynode-supermodels-mongodb": "file:../polynode-supermodels-mongodb"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
