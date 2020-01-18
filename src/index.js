@@ -32,11 +32,27 @@ const { buildModel, autoLoader } = require('polynode-supermodels-mongodb');
 
 const RestAPIApplication = require('polynode-boilerplate-api-rest');
 
+//, controllerCallback: (context: {}, inputQuery: Object) => any
+const getSchemaRegisterFunction = function(subSchemaName: 'body' | 'query') {
+  return function(uncompiledJsonSchema: {}) {
+    if (!this.validationSchema) {
+      this.validationSchema = {};
+    }
+    this.validationSchema[subSchemaName] = {
+      ...uncompiledJsonSchema,
+      $async: true,
+      type: 'object',
+    };
+    return this;
+  };
+};
+
 module.exports = {
   buildModel,
   injector: (composer, forwardOpts) => {
     const {
       webServerEnhanceContext,
+      webServerRequestHooks,
       dbConfig,
       apiServiceConfig,
       ...restOfForwardOpts
@@ -55,7 +71,13 @@ module.exports = {
           this.getModels = (modelList: Array<string>): Array<{}> =>
             modelList.reduce((res, mName) => ({ ...res, [mName]: this.getModel(mName) }), {});
         },
-        enhanceServerInstance: function() {},
+        enhanceServerInstance: function() {
+          this.registerEnhancedRouteHandlers({
+            validateBody: getSchemaRegisterFunction('body'),
+            validateQuery: getSchemaRegisterFunction('query'),
+          });
+        },
+        webServerRequestHooks,
         apiServiceConfig,
         ...restOfForwardOpts,
       })
