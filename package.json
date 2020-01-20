@@ -1,6 +1,6 @@
 {
   "name": "polynode-boilerplate-mongo-api",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Polynode boilerplate for a REST API Server using MongoDB as datasource.",
   "main": "build/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/polynode-io/polynode-boilerplate-mongo-api#readme",
   "dependencies": {
-    "polynode-boilerplate-api-rest": "^0.1.9",
+    "polynode-boilerplate-api-rest": "^0.1.10",
     "polynode-service-mongodb": "^0.1.6",
     "polynode-supermodels-mongodb": "^0.1.1"
   },
