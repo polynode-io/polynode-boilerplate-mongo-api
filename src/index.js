@@ -26,24 +26,91 @@
  *
  */
 
+const Ajv = require('ajv');
+const ajv = new Ajv();
+
 const DatabaseService = require('polynode-service-mongodb');
 
 const { buildModel, autoLoader } = require('polynode-supermodels-mongodb');
 
 const RestAPIApplication = require('polynode-boilerplate-api-rest');
 
+type TransformElement = {
+  conditions: Array<Boolean>,
+  transformer: (obj: Object) => Object,
+};
+
+type SecurityExecArguments = {
+  deny?: Array<Boolean>,
+  transforms?: Array<TransformElement>,
+};
+
+const {
+  Errors: { ForbiddenError },
+} = require('polynode-boilerplate-webserver');
+
+const enhancedControllerValidate = async function(validationSchema, obj) {
+  console.log({}, 'Inside validateBody');
+  const endpointValidator: EndpointValidatorType = ajv.compile(validationSchema);
+  const verifiedData: any = await endpointValidator(obj);
+  console.log({}, 'after endpointValidator, verifiedData is: ', verifiedData);
+  return verifiedData;
+};
+
 //, controllerCallback: (context: {}, inputQuery: Object) => any
-const getSchemaRegisterFunction = function(subSchemaName: 'body' | 'query') {
-  return function(uncompiledJsonSchema: {}) {
-    if (!this.validationSchema) {
-      this.validationSchema = {};
-    }
-    this.validationSchema[subSchemaName] = {
-      ...uncompiledJsonSchema,
-      $async: true,
-      type: 'object',
+const getSchemaRegisterFunction = (subSchemaName: 'body' | 'query') => {
+  return function(uncompiledJsonSchema) {
+    console.log(
+      '[getSchemaRegisterFunction] - uncompiledJsonSchema is: ',
+      typeof uncompiledJsonSchema,
+      typeof uncompiledJsonSchema === 'object' &&
+        uncompiledJsonSchema.constructor &&
+        uncompiledJsonSchema.constructor.name
+    );
+    return (query, body, context) => {
+      return new Promise(async (resolve, reject) => {
+        console.log('*** Resolving validator (' + subSchemaName + ')');
+        if (!this.validationSchema) {
+          this.validationSchema = {};
+        }
+        this.validationSchema[subSchemaName] = {
+          ...uncompiledJsonSchema,
+          $async: true,
+          type: 'object',
+        };
+        resolve([
+          subSchemaName === 'query'
+            ? await enhancedControllerValidate(this.validationSchema[subSchemaName], query._unsafe)
+            : query,
+          subSchemaName === 'body'
+            ? await enhancedControllerValidate(this.validationSchema[subSchemaName], body._unsafe)
+            : body,
+          context,
+        ]);
+      });
     };
-    return this;
+  };
+};
+
+const securityExec = ({ deny, transforms }: SecurityExecArguments) => {
+  return async (query, body, context) => {
+    console.log('deny: ', deny, 'transforms:', transforms);
+    console.log('-> context  is: ', context);
+    console.log('qbc is: ', query, body, context);
+    console.log('securityContext: deny arr:', deny);
+    const shouldDenyRequest = deny ? deny.filter(d => d === true).length : false;
+    if (shouldDenyRequest) {
+      console.log('securityContext: SHOULD DENY REQUEST!');
+      throw new ForbiddenError();
+    }
+
+    const transformResult = async rawResult =>
+      transforms
+        .filter(tOp => tOp.conditions.filter(tc => tc === true).length > 0)
+        .reduce((res, { transformer }) => transformer(res), rawResult);
+
+    console.log('transforms:', transforms);
+    return [query, body, context, transforms ? transformResult : null];
   };
 };
 
@@ -75,6 +142,7 @@ module.exports = {
           this.registerEnhancedRouteHandlers({
             validateBody: getSchemaRegisterFunction('body'),
             validateQuery: getSchemaRegisterFunction('query'),
+            securityExec,
           });
         },
         webServerRequestHooks,

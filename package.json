@@ -21,7 +21,8 @@
   "dependencies": {
     "polynode-boilerplate-api-rest": "^0.1.11",
     "polynode-service-mongodb": "^0.1.6",
-    "polynode-supermodels-mongodb": "^0.1.1"
+    "polynode-supermodels-mongodb": "^0.1.1",
+    "polynode-boilerplate-webserver": "^0.2.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
