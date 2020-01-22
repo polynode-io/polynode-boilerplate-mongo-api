@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/polynode-io/polynode-boilerplate-mongo-api#readme",
   "dependencies": {
-    "polynode-boilerplate-api-rest": "^0.1.11",
+    "polynode-boilerplate-api-rest": "^0.1.15",
     "polynode-service-mongodb": "^0.1.6",
     "polynode-supermodels-mongodb": "^0.1.1",
     "polynode-boilerplate-webserver": "^0.2.5"
