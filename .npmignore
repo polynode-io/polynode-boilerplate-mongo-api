@@ -1,2 +1,6 @@
+package-realDeps
+*.log
+package-realDeps.json
+package.json_development
 node_modules/
 *.lock
