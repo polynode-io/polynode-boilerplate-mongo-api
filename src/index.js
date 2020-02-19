@@ -46,7 +46,7 @@ type SecurityExecArguments = {
 };
 
 const {
-  Errors: { ForbiddenError },
+  Errors: { ForbiddenError, UnprocessableEntityError },
 } = require('polynode-boilerplate-webserver');
 
 const enhancedControllerValidate = async function(validationSchema, obj) {
@@ -78,15 +78,38 @@ const getSchemaRegisterFunction = (subSchemaName: 'body' | 'query') => {
           $async: true,
           type: 'object',
         };
-        resolve([
-          subSchemaName === 'query'
-            ? await enhancedControllerValidate(this.validationSchema[subSchemaName], query._unsafe)
-            : query,
-          subSchemaName === 'body'
-            ? await enhancedControllerValidate(this.validationSchema[subSchemaName], body._unsafe)
-            : body,
-          context,
-        ]);
+        try {
+          console.log('starting validation');
+          const result = [
+            subSchemaName === 'query'
+              ? await enhancedControllerValidate(
+                  this.validationSchema[subSchemaName],
+                  query._unsafe
+                )
+              : query,
+            subSchemaName === 'body'
+              ? await enhancedControllerValidate(this.validationSchema[subSchemaName], body._unsafe)
+              : body,
+            context,
+          ];
+          console.log('result is: ', result);
+          return resolve(result);
+        } catch (err) {
+          console.log('-ERRR: ', err);
+          // @todo: diferenciar entre errores de validacion y otro tipo de errores.
+          if (err.constructor.name === 'ValidationError') {
+            console.log({ err }, 'Validation errors:');
+            return reject(
+              new UnprocessableEntityError('Invalid query', {
+                type: 'ValidationError',
+                errors: err.errors,
+              })
+            );
+          } else {
+            console.log({ err }, 'Request error');
+            return reject(err);
+          }
+        }
       });
     };
   };
